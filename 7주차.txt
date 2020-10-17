@@ -1,0 +1,268 @@
+데마 7주차
+
+판다스 3
+
+시리즈 두개를 더하면
+같은 인덱스가 있으면 더해지고 둘중 하나라도 없으면 nan값
+산술 연산은 다 위와 같이 나옴
+
+데이터프레임은 열과 인덱스 다 같은 값이 있어야 함
+없으면 nan
+
+add 메서드
+
+df1.add(df2, fill_value = 0)
+하면 덧셈은 그냥 +와 같이 되지만
+nan이 나오는 값은 0으로 채워져서 더해진다.
+그래서 만약 df1에 있고 df2에 없는 값이라면
+df1값 그대로 나오게 된다.
+
+r로 시작하는 메서드는 인자를 뒤집는다.
+즉 
+1/df1
+이랑
+df1.rdiv(1)
+이랑 같다.
+즉 1에 df1을 나누는 것.
+(교환법칙이 성립 안할때 사용 가능)
+
+fill_value=0 은 reindex에서도 사용이 가능.
+
+
+데이터 프레임과 시리즈 간의 연산
+브로드캐스팅을 이용하여 빼기
+
+넘파이에서.
+arr이 (3,4)의 값이라고 했을 때
+arr[0]하면 크기가 4인 1차원이다.
+arr - arr[0]하면 각 행을 arr[0]의 값들로 뺀다.
+
+판다스에서도 가능하다.
+
+
+frame = pd.DataFrame(np.arange(12.).reshape((4, 3)),
+columns=list('bde'),
+index=['Utah', 'Ohio', 'Texas', 'Oregon'])
+
+series = frame.iloc[0]
+
+frame - series
+
+이런식이다.
+여기서도 시리즈나 프레임의 열값이 다르면 nan이 나온다.
+
+df1.sub(series, axis='index')로 하면
+프레임의 인덱스와 시리즈의 인덱스를 비교하며 뺀다.
+axis를 안주면 열과 시리즈의 인덱스 비교가 기본이다.
+
+
+함수적용과 매핑.
+f = lambda x: x.max() - x.min()
+frame.apply(f)
+이런식으로 함수를 이용해 값을 조절할 수도 있다.
+위는 각 행을 넘겨 열에 대해서 최대 최소값을 구했지만
+
+ frame.apply(f, axis='columns')
+처럼 axis를 주어 각 열을 넘겨 행에 대한 최대 최소를 줄 수있다.
+
+
+정렬과 순위
+
+data.sort_index()
+하면 인덱스가 오름차순으로 정렬
+data.sort_index(axis = 1)
+하면 열이 정렬/
+
+sort의 옵션으로 ascending = False하면
+내림차순으로 정렬이 된다.
+
+data.sort_values()하면 값을 정렬하는 것이다.
+값이 정렬되면 인덱스 역시 따라간다.
+
+nan값이 있으면 맨 마지막으로 빠짐
+
+frame.sort_values(['a','b'])하면
+a열의 값을 먼저 보고 정렬하고 같으면 b열의 값을 그다음에 본다.
+
+series.rank()
+말그대로 랭킹이다. 
+
+obj = pd.Series([7, -5, 7, 4, 2, 0, 4])
+obj.rank()
+0  6.5
+1  1.0
+2  6.5
+3  4.5
+4  3.0
+5  2.0
+6  4.5
+즉 -5가 먼저 나오니까 1.0이고 4는 원래 네번째인데 두개 있으니까 4.5로 나오는 것이다.
+
+obj.rank(ascending=False, method='max')
+0 2.0
+1 7.0
+2 2.0
+3 4.0
+4 5.0
+5 6.0
+6 4.0
+내림차순으로 되었을 때 랭킹.
+
+frame = pd.DataFrame({'b': [4.3, 7, -3, 2], 'a': [0, 1, 0, 1],
+'c': [-2, 5, 8, -2.5]})
+frame.rank(axis='columns')
+열별로 랭킹을 정한다.
+    b    a    c
+0 3.0 2.0 1.0
+1 3.0 1.0 2.0
+2 1.0 2.0 3.0
+3 3.0 2.0 1.0
+즉 한 행에서 어떤 열이 먼저 나오는지.
+axis = 'index'도 가능
+
+
+통계 계산과 요약
+df.sum() : axis = 'columns'도 가능
+mean도 있다.
+
+이것의 옵션으로 skipna = False를 하면 nan값을 스킵안하는데 만약 nan이 잇으면 결과도 nan
+
+df.idxmax() 최대값의 인덱스
+df.idxmin() 최소값의 인덱스
+
+df.cumsum() 누적합으로 0, 1, 2를 인덱스이면
+
+0까지의 합과 1까지의 합과 2까지의 합 모두 표시
+describe()하면 통계를 보여줌
+
+
+상관관계
+returns = price.pct_change()
+하면price의 퍼센트 변화율 계산
+
+returns['MSFT'].corr(returns['IBM'])
+returns['MSFT'].cov(returns['IBM'])
+corr은 na가 아니면 정렬된 생인에서 연속하는 두 시리즈에 대해 상관관계를 계산
+cov는 공분산을 계산한다.
+공분산이 뭔데
+
+
+import seaborn as sns
+이것도 그림을 그리는 것이다.
+
+return.corr()
+서로의 상관관계
+sns.heatmap(returns.corr())
+
+유일값 값세기 멤버십
+data.unique()
+
+data.value_counts()
+
+mask = obj.isin(['b', 'c'])
+c나 d가 있는지.
+이걸 하면 참거짓 형태의 obj와 같은 형태의 데이터가 생성
+
+
+to_match = pd.Series(['c', 'a', 'b', 'b', 'c', 'a'])
+unique_vals = pd.Series(['c', 'b', 'a'])
+pd.Index(unique_vals).get_indexer(to_match)
+이것을 하면
+unique에 맞춰 인덱스를 가져오란 뜻
+즉 c는 0 b는 1 a는 2로 출력이 될 것이다.
+array([0, 2, 1, 1, 0, 2])
+
+result = data.apply(pd.value_counts)
+열에서 index의 숫자가 값으로 몇개 있는지 세는데 만약 없으면 nan이다
+fillna(0)을 뒤에 붙이면 nan이 0으로 바뀜
+=============================
+
+데이터 집계와 그룹연산
+
+데이터 프레임을 만들 때 key라는 옵션을 넣어줄 수 있다.
+df = pd.DataFrame({'key1' : ['a', 'a', 'b', 'b', 'a'],
+'key2' : ['one', 'two', 'one', 'two', 'one'],
+'data1' : np.random.randint(10,size=(5)),
+'data2' : np.random.randint(10,size=(5))})
+
+grouped = df['data'].groupby(df['key1'])
+
+grouped.mean()하면 키값별로 평균연산을 한다.
+
+key1
+a 3.666667
+b 3.000000
+
+
+means = df['data1'].groupby([df['key1'], df['key2']]).mean()
+이러면 먼저 key1으로 그룹을 묶고 그안에서 key2값으로 그룹을 묶는다.
+
+그래서 각각에 해당되는 데이터들의 평균값을 가진다.
+
+mean.unstack()
+보여지는 형태가 달라짐
+
+states = np.array(['Ohio', 'California', 'California', 'Ohio', 'Ohio'])
+years = np.array([2004, 2005, 2006, 2005, 2006])
+df['data1'].groupby([states, years]).mean()
+
+이런식으로 배열로 다음과 같이 그룹으로 만들수도 있다.
+
+for name, group in df.groupby('key1'):
+	print(name)
+	print(group)
+
+하면 name에는 key1값 즉 a와 b가 저장이 되고 
+group에는 그에 해당하는 데이터가 저장이 될 것이다.
+for (k1, k2), group in df.groupby(['key1', 'key2']):
+	print((k1, k2))
+	print(group)
+키가 2개인 경우
+
+groupby의 옵션으로 axis = 1 하면 열을 그룹화 할 수 있다.
+
+
+사전과 Series에서 그룹핑하기
+
+people = pd.DataFrame(np.random.randint(10, size=(5,5)),
+columns=['a', 'b', 'c', 'd', 'e'],
+index=['Joe', 'Steve', 'Wes', 'Jim', 'Travis'])
+people.iloc[2:3, [1, 2]] = np.nan #
+mapping = {'a': 'red', 'b': 'red', 'c': 'blue',
+'d': 'blue', 'e': 'red', 'f' : 'orange'}
+by_column = people.groupby(mapping, axis=1)
+by_column.sum()
+    blue red
+Joe 1.0 8.0
+Steve 6.0 4.0
+Wes 7.0 12.0
+Jim 12.0 16.0
+Travis 11.0 18.0
+
+
+사전의 각 key로 가지고 있는 부분이 결국 열이랑 같은데 그것의 value로 그룹이 묶인다.
+
+.count()로 개수를 표시할 때  nan값은 세지 않는다.
+
+
+함수로 그룹핑 하기
+
+people.groupby(len).sum()
+이러면 행의 이름의 길이별로 그룹이 묶인다.
+len함수
+
+색인단계로 그룹핑하기
+
+계층적으로 색인된 데이터에 사용
+columns = pd.MultiIndex.from_arrays([['US', 'US', 'US', 'JP', 'JP'],
+[1, 3, 5, 1, 3]],
+names=['city', 'tenor'])
+hier_df = pd.DataFrame(np.random.randn(4, 5), columns=columns)
+
+자료는 강의에서 보기
+레벨 예약어를 사용해 레벨 번호나 이름을 넘기면 가능
+
+hier_df.groupby(level='city', axis=1).sum()
+
+
+ 

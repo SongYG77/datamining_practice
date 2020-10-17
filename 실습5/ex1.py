@@ -2,6 +2,7 @@ from sklearn.datasets import load_iris
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import keras
 iris = load_iris()
 fnames = list(iris.feature_names)
 print(fnames)
