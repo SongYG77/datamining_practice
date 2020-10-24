@@ -1,0 +1,158 @@
+데마 8주차
+
+데이터 집계
+
+.quantile(퍼센트) 
+데이터 자료 범위에서 저 퍼센트 부분의 값이 출력
+
+강의 자료에 data2 의 a 부분이 2 7 7의 값 세개가 있다 그래서 퍼센트 부분에 1이여도 7, 0.75도 7, 0.5도 7값이다.
+
+
+자신만의 데이터 집계함수
+agg 메서드
+
+def peak_to_paek(arr) : 
+	return arr.max() - arr.min()
+grouped.agg(peak_to_peak)
+하면 저 안에 함수로 값이 나옴
+
+grouped.describe()
+데이터를 집계하지 않는데도 잘 작동
+통계를 보여줌
+
+
+커럼에 여러가지 함수 적응하기
+ grouped = tips.groupby(['day', 'smoker'])
+grouped_pct = grouped['tip_pct']
+grouped_pct.agg('mean')
+
+tip_pct부분만 가져와 평균을 구함
+
+grouped_pct.agg(['mean', 'std', peak_to_peak])
+
+저렇게도 agg를 사용 가능하다.
+
+grouped.agg({'tip_pct' : ['min', 'max', 	'mean', 'std'], 
+	'size' : 'sum'})
+다음을 보면 tip_pct에 대해서 여러 값들과 size에 대한 총합을 그룹처럼 묶어 보여준다.
+Apply: 일반적인 분리-적용-병합
+def top(df, n=5, column='tip_pct'):
+     return df.sort_values(by=column)[-n:]
+top이라는 함수 지정
+n과 column값을 넘겨받지 않으면 위의 값으로 계산한다.
+
+
+tips.groupby('smoker').apply(top)
+각 그룹의 상위 사람들을 보여주게 된다.
+
+apply에 추가적인 인자를 넘겨줄 수 있다.
+
+tips.groupby(['smoker', 'day']).apply(top, n=1, column='total_bill')
+흠연자와 요일에 따라 그룹하는데 상위데이터를 가져오되 n이 1이라 최상위 한개만 가져오고 total_bill을 기준으로 상위를 판단
+즉 apply( 함수명, 거기에 해당하는 인자들)
+
+그룹 색인 생략하기
+a.groupby('열', group_keys=False)
+하면 그룹을 나눈 키값을 보여줄 때 앞에 적힌 키 기준이 표에서 안보임
+
+cut 과 qcut
+선택한 크기만큼에 따라 데이터를 나눌 수 있다.
+quartiles = pd.cut(frame.data1, 4)
+4개로 구간을 나눈다는 뜻이다.
+이것은 구간을 나눌 때 퍼센트를 계산한다 즉 4개의 구간이면 0~25퍼 까지의 값들을 묶고 25~50, 50~75, 75~100퍼로 4 구간인 것이다,.
+값의 퍼센트로 나누기 때문에 구간의 값 개수가 다름
+
+크기가 같은 버킷을 위해서는 qcut을 사용한다.
+즉
+grouping = pd.qcut(frame.data1, 10, labels=False)
+하면 10개 구간을 설정하는 것이다. 이건 개수로 나눈는거기 때문에 데이터가 1000개 짜리를 10개 구간으로 나누면 각 구간마다 100개씩 있다.
+
+
+s[::2] = np.nan
+s의 시작점부터 2개씩 건너뛰며 nan으로 바꿔라
+0 NaN
+1 -0.663811
+2 NaN
+3 0.606571
+4 NaN
+5 2.140735
+
+fillna()
+
+fill_mean = lambda g: g.fillna(g.mean())
+data.groupby(group_key).apply(fill_mean)
+이럴 경우 각 그룹의 평균값으로 nan이 채워진다.
+
+
+pandas 5 
+예제들이 나올 예정(강의자료 보기)
+
+rets = close_px.pct_change()
+변화율을 보여주는 메서드이다.
+
+spx_corr = lambda x: x.corrwith(x['SPX'])
+상관관계를 알아볼 수 있다.
+
+
+
+피벗테이블과 교차 일람표
+
+피벗테이블은 앞에서 설명한 그룹바이 기능을 사용해서 측정색인 활용한 재형성 연산가능.
+tips.pivot_table(index=['day', 'smoker'])
+
+tips.pivot_table(['tip_pct', 'size'], index=['time', 'day'], columns='smoker')
+열은 tip_pct와 size를 사용 행을 time과 day에 대해 묶는다. 그리고 열을 somker을 기준으로 나뉘게 된다(묶는다).
+
+옵션 margins = True로 옵션을 주면 그룹으로 나누지 않은 전체값을 보여주게 된다.
+
+옵션 aggfunc = 'mean' 을 주면 평균값들로 값을 보여준다. len이나 min max도 가능할듯
+
+
+from io import String0
+하면 스트링 형태의 테이터를 가져와 데이터를 만들 수 있는데, 
+data = pd.read_table(StringIO(data), sep='\s+')
+sep에서 \s+는 스페이스바로 구분되어 있다는 것이다.
+
+crosstab
+pd.crosstab(data.Nationality, data.Handedness, margins=True)
+
+행을 Nationality기준으로 열을 Handedness 기준으로 묶음
+
+pd.crosstab([tips.time, tips.day], tips.smoker, margins=True)
+
+행을 time을 기준으로 나누고 day기준으로 더 나눈다.
+
+
+Word Cloud
+
+from wordcloud import WordCloud
+
+wordcloud = WordCloud(font_path='/Library/Fonts/NanumGothic.ttf',background_color='white').generate(text) 
+
+폰트와 배경 파라미터를 넣어주고
+.generate(데이터)를 넣어주면 된다.
+plt.imshow(wordcloud, interpolation='lanczos')
+옵션은 이미지 부드럽기 정도
+
+
+특정 단어를 빼고 싶을 때
+from wordcloud import WordCloud
+from wordcloud import STOPWORDS
+
+stopwords = set(STOPWORDS)
+stopwords.add(빼고 싶은 단어)
+wordcloud = WordCloud(font_path='/Library/Fonts/NanumGothic.ttf',background_color='white', stopwords = stopwords).generate(text) 
+하면 된다.
+
+a = open().read()를 통해 외부 텍스트도 가능
+
+import numpy as np
+from PIL import Image
+text = open('alice.txt').read()
+alice_mask= np.array(Image.open('alice.png'))
+
+
+wc = WordCloud(background_color='white',max_words=2000,mask=alice_mask,stopwords= stopwords)
+wc = wc.generate(text)
+
+하면 저 불러온 그림을 마스크(모양)로 안에 워드 클라우드가 생성된다.
