@@ -1,0 +1,59 @@
+설정파일들은 settings.py에 있다. 설정파일 일부를 변경해준다.
+
+ 
+
+ 
+
+ALLOWED_HOSTS
+
+DEBUG=True면 개발모드, False는 운영 모드. 운영모드면 ALLOWED_HOSTS에 반드시 서버 IP나 도메인이 있어야 함. 디버깅모드면 default로 localhost지정.
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ 
+
+ 
+
+INSTALLED_APPS
+
+프로젝트에 포함되는 애플리케이션들 등록.
+
+지금 예제에서는 polls 사용하니까 polls만 등록하면 된다.
+
+한개의 프로젝트에 여러 애플리케이션 사용 가능. 모듈같은거라고 생각하자.
+
+INSTALLED_APPS = [
+	...
+    'polls.apps.PollsConfig',
+]
+모듈명인 'polls'만 등록해도 되지만, 애플리케이션의 설정 클래스로 등록하는게 더 정확하다.
+
+polls앱의 설정 클래스는 apps.py파일에 PollsConfig라고 정의되어 있다. (startapp polls했을때 자동생성됨)
+
+ 
+
+ 
+
+DATABASES
+
+장고 디폴트는 SQLite3사용. 다른 데이터베이스 엔진으로 바꾸고싶으면 settings.py에서 변경하면 된다.
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+ 
+
+ 
+
+TIME_ZONE
+
+UTC로 되어있는데 한국시간으로 변경한다. USE_TZ = True로 두면 장고가 알아서 시간대를 조정해준다. 그런데 USE_TZ옵션을 이용하면 일광절약시간제(Daylight Saving Time)을 사용하게 된다. 한국은 그런거 안쓰니까 False로 뒀다.
+
+#TIME_ZONE = ;UTC'
+TIME_ZONE = 'Asia/Seoul'
+USE_TZ = False
+
+
+출처: https://conservative-vector.tistory.com/entry/파이참-Django-프로젝트-시작하기 [에움길]

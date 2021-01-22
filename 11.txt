@@ -1,0 +1,153 @@
+데마 11주차 
+
+지도
+folium을 임포트한다
+
+위도 경도를 location으로 설정
+
+
+엑셀파일을 판다스로 가져오는것
+from pandas import ExcelFile
+xlsx = ExcelFile('파일이름')
+df = xlsx.parse(xlsx.sheet_name[0])
+
+
+전처리로 filter사용해여 열 추출.
+
+df.filter([])하면
+리스트 안의 것으로 특정 열들만 뽑아낸다.
+
+df3 = df.query("학교급구분 == '초등학교' and 소재지도로명주소.str.contains('서울특별시')")
+
+query는 위에 보면 학교급구분 열에 초등학교 값과(and) 소재지도로명주소에서 contains 즉 특정 값을 str(문자열)에 포함된 값만 가져오는 것이다.
+
+위를 해석해보면 학교급구분이 초등학교이고 소새지도로명주소에서 서울특별시가 들어간 것만 뽑아온 것이다.
+
+강의자료 코드를 보면
+for문을 df3.index값들로 돌린다.
+ name lat lng값에 loc이 i번째 값들을 넣고 그 표시 이름을 name값으로 설정해 marker을 만든다. 
+marker.add_to(map_osm)으로 맵에 표시해줍니다.
+
+
+loc의 방법
+cs = crime_seoul.loc[ : ,['열1','열2']]
+이건  : 으로 행을 다 가져오지만 열은 특정 열을 가져온다.
+
+폰트가 깨지지 않기 위해서 
+from matplotlib import font_manager , rc
+
+rc('font', family = 'gulim')#윈도우
+이걸 추가해주면 된다.
+
+
+살인이 일어난 구역들을 지도로 뿌려보기
+
+
+map = 위경도 설정해준다
+
+folium Choropleth(geo_data = geo_str,
+	data = crime_seoul['살인'],
+	columns = [crime_seoul.index, crime_seoul['살인']]
+	fill_color = 'PuRd',
+	key_on = 'feature.id').add_to(map)
+
+folium.LayerControl().add_to(map)
+
+데이터를 설정하고 컬럼값도 넣어준다,
+feature.id는 그림을 그리겟다는 뜻?
+
+add_to는 어디에 그림을 그릴지
+
+위에서 마크로 표시했는데 
+이번엔 서클이나 네모로 표시하는 방법
+
+Circle이라는 함수를 ㅣㅇ용
+folium.Circle( location = df.loc[i, ['위도', '경도']], tooltip = df.loc[i,'고유번호'], radius = 200).add_to(map)
+
+위경도와 고유변호를 마우스온 할때 표시, 크기를 radius로 지정
+
+
+PolyLine
+Path단위로 데이터를 다루는 레이어들은 한 데이터에 여러개의 Point들이 리스트 형태로 들어간다.
+
+lines = df[['위도','경도']].values[:5].tolist()
+리스트로 df의 위경도값 5개를 리스트로 만든다.
+이 리스트들을 각각 연결해서 라인을 만드는 것
+
+center = [위도, 경도]
+중심좌표
+
+m = folium.Map 으로 맵 중심을 만듬
+
+folium.PolyLine( locations = lines, tooltips = 'PloyLine')add_to(m)
+이러면 선으로 연결된 것을 확인할 수 있다.
+
+\그래서 path로 내가 지나온 경로를 만들 수도 있다.
+
+Rectangle
+사각형을 그리는 것이다.
+folium.Rectangle(bounds = lines, toolttips = 'Rectangle')add_to(m)
+접들의 최 외각점을 연결해서 그리는 것이다.
+
+
+Polygon
+folium.Polygon( locations = lines, fill = True, tooltip = 'Polygon').add_to(m)
+
+각 위치들을 다 연결해 도형을 만드는 것이다.
+각 위치들을 연결해 폐곡선이 만들어지는 부분들을 fill true로 하면 색상이 칠해진다.
+
+
+GeoPandas
+folium처럼 사용 가능한 지도 모듈이다.
+
+geopandas가 교수님 윈도우에서 동작을 안해 google colab을 사용하셧다
+
+Google Colab 사용법
+
+먼저 pip없으면 설치
+
+from google.colab import drive
+drive.mount('/content/drive')
+이건 매번 넣어줘야 하는 것 같다
+이걸 해야 내 드라이브의 파일을 불러올 수 있다.
+
+file을 불러올 때 직접 경로를 넣어줘야 댄다.(그 파일이 저장된 드라이브의 위치.)
+shp확장자는 공간지도 파일로 파일의 확장자이다.
+shp나 dbf shx등이 있다.
+
+import geopandas as gdp
+seoul_file = '경로/파일이름.shp'
+seoul = gdp.read_file(seoul_file)
+이렇게 읽어준다. 그러면 데이터들이 데이터프레임워크와 비슷하게 보여준다.
+
+ax = seoul.convex_hull.plot(color = 'purple', edgecolor = 'w')
+
+서울에 있는 데이터파일을 가지고 convex hull에 그림을 그리겟다는 뜻이다.
+ax.set_title('이름')
+ax.set_axis_off()
+plt.show()
+
+이런식으로 사용가능
+
+이거는 folium과 다르게 전체지도에 오버레이가 아니라 원하는 지역만 시각화 가능하다.
+
+
+특정 구만 보고 싶을 때.
+seoul = seoul[seoul['SIG_KOR_NM'] == '종로구']
+이렇게 해서 했던것과 동일하게 표현하면 종로구 부분만 표현된다.
+
+폰트 깨지면 이전에 했던 방법으로 똑같이 한다.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

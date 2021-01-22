@@ -1,0 +1,92 @@
+데마 10주차
+
+matplotlib의 3차원
+
+xyz축 
+
+from mpl_toolkits import mplot3d
+
+fig = plt.figure
+ax = plt.axes(projection = '3d')
+
+하면 3차원 fig가 생긴다.
+
+3차원 플로팅은 정적이 아니라 대화식으로 그림을 볼 수 있다.
+이게 축을 돌려가며 볼 수 있다는 뜻?
+%matplot notebook을 사용하면 된다.
+
+정적은 %matplot inline
+
+이전까지 독립변수가 하나였다. 
+근데 이것은 독립변수가 두개이다
+그래서 입력이 항상 3개로 들어가야 한다.
+
+포물선 형으로 하기 위해 linspace(시작,끝,개수) 로 가능하다.(범위를 개수만큼으로 구간을 나눈것)
+
+ax.plot3D(xline, yline, zline) 
+이런식으로 그릴 수 있다.
+
+ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Greens');
+흩뿌리기 방식도 가능한데 저기의 c옵션은 칼라의 정도이다. 즉 저기에 z값을 집어넣으면 z값에 따라서 색이 진해지고 연해진다.
+값이 높으면 진한 초록색
+
+
+
+3차원 등고선 플롯
+
+mplot3d는 등고선의 색상으로 값을 표현이 가능하다.
+
+X, Y =np.meshgrid(x,y)
+이것은 독립변수 x와y가 만나는 점을 표현하려면 2차원 좌표계(x,y)가 필요하다.
+즉 x와 y가 쌍으로 다녀야해서 meshgrid가 필요하고 그것으로 임의 연산을 해 z값을 구할 수 있는 거다.
+
+시야각을 바꿀 수 있는데
+ax.veiw_init(w,h)로 바꿀 수 있다.
+
+
+와이어 프레임과 평면도
+
+3차원의 값을 투영해서 그림을 보여주는것
+와이어 프레임은 그물망 처럼
+평면도는 그 그물망을 다각형으로 채워져있는 것이다.
+
+ax.plot_wireframe(X, Y, Z, color='black')
+와이어 프레임
+
+ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+평면도
+
+표면삼각측량법
+
+균일하게 생플링 된 그리드가 아니라
+삼각측량법을 기반으로 보기 좋게 표시가 되는 것을 본다(meshgrid 사용 안햇음)
+
+ax.plot_trifurf( x,y,z)하면 경직된 무늬가 아닌 연결된 듯한 그림이 나온다.(더 자연스럽게 그려진다)
+
+
+============================
+지도시각화
+지도로 표현하기
+folium 모듈 사용
+
+import folium
+
+m = folium.Map(location = [45.52..., -122.2...])
+로케이션 옵션은 시작지점을 뜻한다.
+m을 하면 쥬피터에서는 맵이 그려진다.
+
+하지만 파이참에서 하는 경우는 m을 프린트하면 안뜰 수 있다.
+그러면 
+m.save('index.html')
+처럼 객체를 웹으로 저장해 파일을 확인해야 한다.
+
+maker도 있다
+
+각각의 지역에서 시각화 표현할 때 자주 사용된다.
+
+지도가 너무 클 수 있으니 줌레벨을 어떻게 할 지 생각해야 한다.
+
+m = folium.Map(location = [45.52..., -122.2...], zoom_start = 17)
+
+json이라는 것을 사용하면 동별로 좌표값이 있어 나눠질 수 있다.
+

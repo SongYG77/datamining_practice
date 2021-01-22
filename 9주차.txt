@@ -1,0 +1,62 @@
+데마 9주차
+seaborn
+
+이전까지는 matplotlib를 사용했엇다.
+
+하지만 조금 아쉬운 부분이 많이 있었음
+
+import seaborn as sns
+sns.set()
+set()으로 스타일 설정
+
+randdata = np.random.multivariate_normal([0,0],[[5,2],[2,2]],size = 2000)
+randdata = pd.DataFrame(randdata, columns = ['x','y'])
+
+sns.histplot(randdata)
+히스토 그램
+
+sns.kdeplot(data= randdata)
+커널 밀도 추정이다(대략적인 분포를 보여줌)
+두개를 동시에 그릴 수 있다. 
+sns.displot(randdata, kde= TRUE)
+
+
+jointplot
+결합분포와 주변분포를 같이 볼 수 있다.
+sns.jointplot(data=penguins, x="bill_length_mm",y="bill_depth_mm",hue="species", kind="kde")
+x와 y에는 저 데이터의 열이다. 그리고 hue는 나눈다는 뜻인데 종별로 나누겠다는 뜻이고 kind에 kde를 추가해 kde그래프로 그려주겠다는 뜻이다.
+
+
+pair plot
+큰차원의 데이터 세트에서 결합 플롯을 일반화 할때 사용
+sns.pairplot(iris, hue='species', size=2.5);
+여기서도 hue가 종류별로 나눠서 그림 그리겠다는 뜻이다.
+
+
+grid = sns.FacetGrid(tips, row="sex", col="time", margin_titles=True)
+
+이렇게 해놓으면 여러개의빈 공간이 나온다.
+그래서 이것을 그림을 추가하려면 grid.map사용
+grid.map(plt.hist, "tip_pct", bins=np.linspace(0, 40, 15))
+이렇게  그리되 처음 옵션에 plt.hist로 hist를 이용해 그리겟다는 뜻
+두번째 옵션에 팁의 퍼센트인데
+팁의 퍼센트롤 처음에 지정한 성별과 시간대를 나누어 보는 것이다.
+
+
+요인플롯
+= 박스플롯
+sns.boxplot(x = 'day', y = 'total_bill', hue = 'sex', data = tips)
+
+결합 분포 
+페어플롯과 유사함
+관련된 주변 분포와 함ㄲ[ 다양한 데이터 세트간의 결합분포.
+sns.jointplot(x="total_bill", y="tip", data=tips, kind='hex')
+
+막대 플롯
+시계열은 sns.catplot을 이용
+with sns.axes_style('white'):
+ g = sns.catplot(x="year", data=planets, aspect=2,kind="count", color='steelblue')
+ g.set_xticklabels(step=5) # 이건 x축의 라벨 표시를 5개마다 한번씩 하겟다
+
+
+
